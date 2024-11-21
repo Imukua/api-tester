@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiRequest } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,66 +35,7 @@ export default function UserTester({ userId, accessToken }: UserTesterProps) {
   //eslint-disable-next-line
   const [result, setResult] = useState<any>(null);
 
-  useEffect(() => {
-    if (userId && accessToken) {
-      handleGetUser();
-    } else {
-      setUserData({
-        username: "",
-        password: "",
-        phone: "",
-        role: "",
-        createdAt: "",
-        updatedAt: "",
-        id: "",
-      });
-      setResult(null);
-    }
-  }, [userId, accessToken]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserData((prevData) => ({
-      ...prevData,
-      [name]: value || "", // Ensure empty string if value is undefined
-    }));
-  };
-
-  const handleRoleChange = (value: string) => {
-    setUserData({ ...userData, role: value });
-  };
-
-  const handleRegisterUser = async () => {
-    if (
-      !userData.username ||
-      !userData.password ||
-      !userData.phone ||
-      !userData.role
-    ) {
-      toast({
-        title: "Invalid Input",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const response = await apiRequest("/users/register", "POST", userData);
-    setResult(response);
-    if (response.success && response.data.id) {
-      toast({
-        title: "User Registered",
-        description: "New user has been successfully registered.",
-      });
-    } else {
-      toast({
-        title: "Registration Failed",
-        description: "Failed to register new user.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleGetUser = async () => {
+  const handleGetUser = useCallback(async () => {
     try {
       console.log("Fetching user with ID:", userId);
       const response = await apiRequest(
@@ -127,6 +68,65 @@ export default function UserTester({ userId, accessToken }: UserTesterProps) {
       toast({
         title: "Fetch Failed",
         description: "Failed to retrieve user data.",
+        variant: "destructive",
+      });
+    }
+  }, [userId, accessToken]);
+
+  useEffect(() => {
+    if (userId && accessToken) {
+      handleGetUser();
+    } else {
+      setUserData({
+        username: "",
+        password: "",
+        phone: "",
+        role: "",
+        createdAt: "",
+        updatedAt: "",
+        id: "",
+      });
+      setResult(null);
+    }
+  }, [userId, accessToken, handleGetUser]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
+      [name]: value || "", // Ensure empty string if value is undefined
+    }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setUserData((prevData) => ({ ...prevData, role: value }));
+  };
+
+  const handleRegisterUser = async () => {
+    if (
+      !userData.username ||
+      !userData.password ||
+      !userData.phone ||
+      !userData.role
+    ) {
+      toast({
+        title: "Invalid Input",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const response = await apiRequest("/users/register", "POST", userData);
+    setResult(response);
+    if (response.success && response.data.id) {
+      toast({
+        title: "User Registered",
+        description: "New user has been successfully registered.",
+      });
+    } else {
+      toast({
+        title: "Registration Failed",
+        description: "Failed to register new user.",
         variant: "destructive",
       });
     }

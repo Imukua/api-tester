@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiRequest } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,13 +52,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
   //eslint-disable-next-line
   const [result, setResult] = useState<any>(null);
 
-  useEffect(() => {
-    if (userId) {
-      fetchShops();
-    }
-  }, [userId]);
-
-  const fetchShops = async () => {
+  const fetchShops = useCallback(async () => {
     const response = await apiRequest("/shops", "GET", null, accessToken);
     if (response.success) {
       setShops(response.data.shops);
@@ -69,7 +63,13 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
         variant: "destructive",
       });
     }
-  };
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchShops();
+    }
+  }, [userId, fetchShops]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -91,6 +91,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
         buildingName: "",
         shopNumber: "",
         userId: userId,
+        name: "",
       });
       fetchShops();
     } else {

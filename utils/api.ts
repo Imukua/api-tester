@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/v1'
+const BASE_URL = process.env. NEXT_PUBLIC_BASE_URL || 'http://localhost:3000/v1'
 
 export async function apiRequest(endpoint: string, method: string, data?: unknown, token?: string) {
   const headers: HeadersInit = {

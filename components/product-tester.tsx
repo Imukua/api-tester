@@ -175,7 +175,7 @@ export default function ProductTester() {
               <Plus className="w-4 h-4 mr-2" /> Add Product
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] bg-orange-50 border-orange-200">
+          <DialogContent className="sm:max-w-[600px] bg-orange-50 border-orange-200 max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-orange-800">
                 Add New Product
@@ -192,7 +192,7 @@ export default function ProductTester() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-orange-800">
                     Name
@@ -358,12 +358,14 @@ export default function ProductTester() {
                 />
               </div>
             </div>
-            <Button
-              onClick={handleCreateProduct}
-              className="w-full bg-orange-500 hover:bg-orange-600"
-            >
-              Create Product
-            </Button>
+            <div className="sticky bottom-0 bg-orange-50 pt-4 pb-4">
+              <Button
+                onClick={handleCreateProduct}
+                className="w-full bg-orange-500 hover:bg-orange-600"
+              >
+                Create Product
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -372,7 +374,7 @@ export default function ProductTester() {
           <CardTitle className="text-orange-800">Products List</CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[calc(100vh-200px)] md:h-[400px] pr-4">
             {products.length > 0 ? (
               <div className="space-y-4">
                 {products.map((product) => (
@@ -380,8 +382,8 @@ export default function ProductTester() {
                     key={product.id}
                     className="p-4 hover:bg-orange-50 transition-colors"
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start">
+                      <div className="mb-2 sm:mb-0">
                         <h3 className="font-semibold text-lg text-orange-800">
                           {product.name}
                         </h3>
@@ -398,7 +400,7 @@ export default function ProductTester() {
                           Colors: {product.colors.join(", ")}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right">
                         <Badge
                           variant="outline"
                           className="bg-orange-100 text-orange-800 mb-2"

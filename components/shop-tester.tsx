@@ -97,8 +97,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
       fetchShops();
       setIsDialogOpen(false);
     } else {
-      const message = JSON.stringify(response, null, 2);
-      setError(message);
+      setError("An error occurred while creating the shop.");
     }
   };
 
@@ -129,7 +128,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
               <Plus className="w-4 h-4 mr-2" /> Add Shop
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] bg-orange-50 border-orange-200">
+          <DialogContent className="sm:max-w-[425px] bg-orange-50 border-orange-200 max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-orange-800">
                 Add New Shop
@@ -138,99 +137,103 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
                 Create a new shop for your business.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-orange-800">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={newShop.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter shop name"
-                  className="border-orange-300 focus:border-orange-500"
-                />
+            <ScrollArea className="pr-4">
+              <div className="space-y-4 py-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-orange-800">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={newShop.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter shop name"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="desc" className="text-orange-800">
+                    Description
+                  </Label>
+                  <Input
+                    id="desc"
+                    name="desc"
+                    value={newShop.desc}
+                    onChange={handleInputChange}
+                    placeholder="Enter shop description"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="street" className="text-orange-800">
+                    Street
+                  </Label>
+                  <Input
+                    id="street"
+                    name="street"
+                    value={newShop.street}
+                    onChange={handleInputChange}
+                    placeholder="Enter street name"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="businessType" className="text-orange-800">
+                    Business Type
+                  </Label>
+                  <Input
+                    id="businessType"
+                    name="businessType"
+                    value={newShop.businessType}
+                    onChange={handleInputChange}
+                    placeholder="Enter business type"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="buildingName" className="text-orange-800">
+                    Building Name
+                  </Label>
+                  <Input
+                    id="buildingName"
+                    name="buildingName"
+                    value={newShop.buildingName}
+                    onChange={handleInputChange}
+                    placeholder="Enter building name"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shopNumber" className="text-orange-800">
+                    Shop Number
+                  </Label>
+                  <Input
+                    id="shopNumber"
+                    name="shopNumber"
+                    value={newShop.shopNumber}
+                    onChange={handleInputChange}
+                    placeholder="Enter shop number"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="desc" className="text-orange-800">
-                  Description
-                </Label>
-                <Input
-                  id="desc"
-                  name="desc"
-                  value={newShop.desc}
-                  onChange={handleInputChange}
-                  placeholder="Enter shop description"
-                  className="border-orange-300 focus:border-orange-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="street" className="text-orange-800">
-                  Street
-                </Label>
-                <Input
-                  id="street"
-                  name="street"
-                  value={newShop.street}
-                  onChange={handleInputChange}
-                  placeholder="Enter street name"
-                  className="border-orange-300 focus:border-orange-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="businessType" className="text-orange-800">
-                  Business Type
-                </Label>
-                <Input
-                  id="businessType"
-                  name="businessType"
-                  value={newShop.businessType}
-                  onChange={handleInputChange}
-                  placeholder="Enter business type"
-                  className="border-orange-300 focus:border-orange-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="buildingName" className="text-orange-800">
-                  Building Name
-                </Label>
-                <Input
-                  id="buildingName"
-                  name="buildingName"
-                  value={newShop.buildingName}
-                  onChange={handleInputChange}
-                  placeholder="Enter building name"
-                  className="border-orange-300 focus:border-orange-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="shopNumber" className="text-orange-800">
-                  Shop Number
-                </Label>
-                <Input
-                  id="shopNumber"
-                  name="shopNumber"
-                  value={newShop.shopNumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter shop number"
-                  className="border-orange-300 focus:border-orange-500"
-                />
-              </div>
+            </ScrollArea>
+            <div className="sticky bottom-0 bg-orange-50 pt-4 pb-4">
+              <Button
+                onClick={handleCreateShop}
+                className="w-full bg-orange-500 hover:bg-orange-600"
+              >
+                Create Shop
+              </Button>
             </div>
-            <Button
-              onClick={handleCreateShop}
-              className="w-full bg-orange-500 hover:bg-orange-600"
-            >
-              Create Shop
-            </Button>
           </DialogContent>
         </Dialog>
       </div>
@@ -239,7 +242,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
           <CardTitle className="text-orange-800">Shops List</CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[calc(100vh-200px)] md:h-[400px] pr-4">
             {shops.length > 0 ? (
               <div className="space-y-4">
                 {shops.map((shop) => (
@@ -247,8 +250,8 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
                     key={shop.id}
                     className="p-4 hover:bg-orange-50 transition-colors"
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start">
+                      <div className="mb-2 sm:mb-0">
                         <h3 className="font-semibold text-lg text-orange-800">
                           {shop.name}
                         </h3>
@@ -262,7 +265,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
                       </div>
                       <Badge
                         variant="outline"
-                        className="bg-orange-100 text-orange-800"
+                        className="bg-orange-100 text-orange-800 mt-2 sm:mt-0"
                       >
                         ID: {shop.id}
                       </Badge>

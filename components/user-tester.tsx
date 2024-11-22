@@ -16,6 +16,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { exclude } from "@/lib/utils";
 import { ResultDisplay } from "./result-display";
+import { UserPlus, User, UserCog, Users } from "lucide-react";
 
 interface UserTesterProps {
   userId: string;
@@ -49,7 +50,7 @@ export default function UserTester({ userId, accessToken }: UserTesterProps) {
       if (response.success && response.data) {
         setUserData({
           username: response.data.username || "",
-          password: "", // Don't set the password from the API response
+          password: "",
           phone: response.data.phone || "",
           role: response.data.role || "",
           createdAt: response.data.createdAt || "",
@@ -94,7 +95,7 @@ export default function UserTester({ userId, accessToken }: UserTesterProps) {
     const { name, value } = e.target;
     setUserData((prevData) => ({
       ...prevData,
-      [name]: value || "", // Ensure empty string if value is undefined
+      [name]: value || "",
     }));
   };
 
@@ -134,7 +135,6 @@ export default function UserTester({ userId, accessToken }: UserTesterProps) {
 
   const handleUpdateUser = async () => {
     const data = { ...userData };
-    // Create a new variable and exclude empty fields
     const cleanedData = exclude(data, [
       "createdAt",
       "updatedAt",
@@ -247,30 +247,30 @@ export default function UserTester({ userId, accessToken }: UserTesterProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={handleRegisterUser}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Register User
+              <UserPlus className="w-4 h-4 mr-2" /> Register User
             </Button>
             <Button
               onClick={handleGetUser}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Get User
+              <User className="w-4 h-4 mr-2" /> Get User
             </Button>
             <Button
               onClick={handleUpdateUser}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Update User
+              <UserCog className="w-4 h-4 mr-2" /> Update User
             </Button>
             <Button
               onClick={handleGetAllUsers}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Get All Users
+              <Users className="w-4 h-4 mr-2" /> Get All Users
             </Button>
           </div>
           {result && <ResultDisplay result={result} />}

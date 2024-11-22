@@ -5,11 +5,20 @@ import { apiRequest } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Badge } from "./ui/badge";
-import { ScrollArea } from "./ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus, AlertCircle } from "lucide-react";
 import { ResultDisplay } from "./result-display";
 
 interface Product {
@@ -44,8 +53,10 @@ export default function ProductTester() {
     shopId: "",
     categoryId: 0,
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   //eslint-disable-next-line
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -97,6 +108,7 @@ export default function ProductTester() {
   };
 
   const handleCreateProduct = async () => {
+    setError(null);
     const token = localStorage.getItem("accessToken");
     const response = await apiRequest(
       "/products",
@@ -125,202 +137,241 @@ export default function ProductTester() {
         categoryId: 0,
       });
       fetchProducts();
+      setIsDialogOpen(false);
     } else {
-      toast({
-        title: "Failed to create product",
-        description: "An error occurred while creating the product.",
-        variant: "destructive",
-      });
+      setError("An error occurred while creating the product.");
     }
   };
 
   return (
-    <div className="flex space-x-8">
-      <Card className="bg-white shadow-lg flex-grow">
-        <CardHeader className="bg-orange-100">
-          <CardTitle className="text-orange-800">Create Product</CardTitle>
-        </CardHeader>
-        <CardContent className="mt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name" className="text-orange-800">
-                Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={newProduct.name}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Product name"
-              />
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-orange-800">Products</h2>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setError(null);
+              setNewProduct({
+                name: "",
+                quantity: 0,
+                minPurchase: 0,
+                description: "",
+                brand: "",
+                mktPrice: 0,
+                sellingPrice: 0,
+                size: "",
+                colors: [],
+                img: "",
+                shopId: "",
+                categoryId: 0,
+              });
+            }
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <Plus className="w-4 h-4 mr-2" /> Add Product
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px] bg-orange-50 border-orange-200">
+            <DialogHeader>
+              <DialogTitle className="text-orange-800">
+                Add New Product
+              </DialogTitle>
+              <DialogDescription className="text-orange-700">
+                Create a new product for your shop.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-orange-800">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={newProduct.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter product name"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brand" className="text-orange-800">
+                    Brand
+                  </Label>
+                  <Input
+                    id="brand"
+                    name="brand"
+                    value={newProduct.brand}
+                    onChange={handleInputChange}
+                    placeholder="Enter brand name"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="quantity" className="text-orange-800">
+                    Quantity
+                  </Label>
+                  <Input
+                    id="quantity"
+                    name="quantity"
+                    type="number"
+                    value={newProduct.quantity}
+                    onChange={handleNumberInputChange}
+                    placeholder="Enter quantity"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="minPurchase" className="text-orange-800">
+                    Minimum Purchase
+                  </Label>
+                  <Input
+                    id="minPurchase"
+                    name="minPurchase"
+                    type="number"
+                    value={newProduct.minPurchase}
+                    onChange={handleNumberInputChange}
+                    placeholder="Enter minimum purchase"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mktPrice" className="text-orange-800">
+                    Market Price
+                  </Label>
+                  <Input
+                    id="mktPrice"
+                    name="mktPrice"
+                    type="number"
+                    step="0.01"
+                    value={newProduct.mktPrice}
+                    onChange={handleFloatInputChange}
+                    placeholder="Enter market price"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sellingPrice" className="text-orange-800">
+                    Selling Price
+                  </Label>
+                  <Input
+                    id="sellingPrice"
+                    name="sellingPrice"
+                    type="number"
+                    step="0.01"
+                    value={newProduct.sellingPrice}
+                    onChange={handleFloatInputChange}
+                    placeholder="Enter selling price"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="size" className="text-orange-800">
+                    Size
+                  </Label>
+                  <Input
+                    id="size"
+                    name="size"
+                    value={newProduct.size}
+                    onChange={handleInputChange}
+                    placeholder="Enter size"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="colors" className="text-orange-800">
+                    Colors (comma-separated)
+                  </Label>
+                  <Input
+                    id="colors"
+                    name="colors"
+                    value={newProduct.colors.join(", ")}
+                    onChange={(e) => handleColorsChange(e.target.value)}
+                    placeholder="Enter colors (e.g., Red, Blue, Green)"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shopId" className="text-orange-800">
+                    Shop ID
+                  </Label>
+                  <Input
+                    id="shopId"
+                    name="shopId"
+                    value={newProduct.shopId}
+                    onChange={handleInputChange}
+                    placeholder="Enter shop ID"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="categoryId" className="text-orange-800">
+                    Category ID
+                  </Label>
+                  <Input
+                    id="categoryId"
+                    name="categoryId"
+                    type="number"
+                    value={newProduct.categoryId}
+                    onChange={handleNumberInputChange}
+                    placeholder="Enter category ID"
+                    className="border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-orange-800">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  name="description"
+                  value={newProduct.description}
+                  onChange={handleInputChange}
+                  placeholder="Enter product description"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="img" className="text-orange-800">
+                  Image URL
+                </Label>
+                <Input
+                  id="img"
+                  name="img"
+                  value={newProduct.img}
+                  onChange={handleInputChange}
+                  placeholder="Enter image URL"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="brand" className="text-orange-800">
-                Brand
-              </Label>
-              <Input
-                id="brand"
-                name="brand"
-                value={newProduct.brand}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Brand name"
-              />
-            </div>
-            <div>
-              <Label htmlFor="quantity" className="text-orange-800">
-                Quantity
-              </Label>
-              <Input
-                id="quantity"
-                name="quantity"
-                type="number"
-                value={newProduct.quantity}
-                onChange={handleNumberInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Available quantity"
-              />
-            </div>
-            <div>
-              <Label htmlFor="minPurchase" className="text-orange-800">
-                Minimum Purchase
-              </Label>
-              <Input
-                id="minPurchase"
-                name="minPurchase"
-                type="number"
-                value={newProduct.minPurchase}
-                onChange={handleNumberInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Minimum purchase amount"
-              />
-            </div>
-            <div>
-              <Label htmlFor="mktPrice" className="text-orange-800">
-                Market Price
-              </Label>
-              <Input
-                id="mktPrice"
-                name="mktPrice"
-                type="number"
-                step="0.01"
-                value={newProduct.mktPrice}
-                onChange={handleFloatInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Market price"
-              />
-            </div>
-            <div>
-              <Label htmlFor="sellingPrice" className="text-orange-800">
-                Selling Price
-              </Label>
-              <Input
-                id="sellingPrice"
-                name="sellingPrice"
-                type="number"
-                step="0.01"
-                value={newProduct.sellingPrice}
-                onChange={handleFloatInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Selling price"
-              />
-            </div>
-            <div>
-              <Label htmlFor="size" className="text-orange-800">
-                Size
-              </Label>
-              <Input
-                id="size"
-                name="size"
-                value={newProduct.size}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Product size"
-              />
-            </div>
-            <div>
-              <Label htmlFor="colors" className="text-orange-800">
-                Colors (comma-separated)
-              </Label>
-              <Input
-                id="colors"
-                name="colors"
-                value={newProduct.colors.join(", ")}
-                onChange={(e) => handleColorsChange(e.target.value)}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Red, Blue, Green"
-              />
-            </div>
-            <div className="col-span-2">
-              <Label htmlFor="description" className="text-orange-800">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={newProduct.description}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Product description"
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="img" className="text-orange-800">
-                Image URL
-              </Label>
-              <Input
-                id="img"
-                name="img"
-                value={newProduct.img}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
-            <div>
-              <Label htmlFor="shopId" className="text-orange-800">
-                Shop ID
-              </Label>
-              <Input
-                id="shopId"
-                name="shopId"
-                value={newProduct.shopId}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Shop ID"
-              />
-            </div>
-            <div>
-              <Label htmlFor="categoryId" className="text-orange-800">
-                Category ID
-              </Label>
-              <Input
-                id="categoryId"
-                name="categoryId"
-                type="number"
-                value={newProduct.categoryId}
-                onChange={handleNumberInputChange}
-                className="border-orange-300 focus:border-orange-500"
-                placeholder="Category ID"
-              />
-            </div>
-          </div>
-          <Button
-            onClick={handleCreateProduct}
-            className="bg-orange-500 hover:bg-orange-600 mt-4"
-          >
-            Create Product
-          </Button>
-          {result && <ResultDisplay result={result} />}
-        </CardContent>
-      </Card>
-      <Card className="bg-white shadow-lg w-1/3 flex-grow">
+            <Button
+              onClick={handleCreateProduct}
+              className="w-full bg-orange-500 hover:bg-orange-600"
+            >
+              Create Product
+            </Button>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <Card className="bg-white shadow-lg">
         <CardHeader className="bg-orange-100">
           <CardTitle className="text-orange-800">Products List</CardTitle>
         </CardHeader>
-        <CardContent className="mt-4">
+        <CardContent>
           <ScrollArea className="h-[400px] pr-4">
             {products.length > 0 ? (
               <div className="space-y-4">
@@ -337,24 +388,30 @@ export default function ProductTester() {
                         <p className="text-sm text-gray-600">
                           {product.description}
                         </p>
+                        <p className="text-sm text-gray-600">
+                          Brand: {product.brand}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Size: {product.size}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Colors: {product.colors.join(", ")}
+                        </p>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className="bg-orange-100 text-orange-800"
-                      >
-                        Ksh. {product.sellingPrice.toFixed(2)}
-                      </Badge>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        Quantity: {product.quantity}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Min Purchase: {product.minPurchase}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Category ID: {product.categoryId}
-                      </Badge>
+                      <div className="text-right">
+                        <Badge
+                          variant="outline"
+                          className="bg-orange-100 text-orange-800 mb-2"
+                        >
+                          ID: {product.id}
+                        </Badge>
+                        <p className="text-sm font-semibold text-orange-800">
+                          Price: ${product.sellingPrice.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Quantity: {product.quantity}
+                        </p>
+                      </div>
                     </div>
                   </Card>
                 ))}
@@ -367,6 +424,7 @@ export default function ProductTester() {
           </ScrollArea>
         </CardContent>
       </Card>
+      {result && <ResultDisplay result={result} />}
     </div>
   );
 }

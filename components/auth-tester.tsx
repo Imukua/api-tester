@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { ResultDisplay } from "./result-display";
+import { LogIn, LogOut, RefreshCw } from "lucide-react";
 
 interface AuthTesterProps {
   onAuthSuccess: (userId: string, accessToken: string) => void;
@@ -124,26 +125,26 @@ export default function AuthTester({
               className="border-orange-300 focus:border-orange-500"
             />
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={handleLogin}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Login
+              <LogIn className="w-4 h-4 mr-2" /> Login
             </Button>
             <Button
               onClick={handleLogout}
               disabled={!refreshToken}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Logout
+              <LogOut className="w-4 h-4 mr-2" /> Logout
             </Button>
             <Button
               onClick={handleRefreshToken}
               disabled={!refreshToken}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
-              Refresh Token
+              <RefreshCw className="w-4 h-4 mr-2" /> Refresh Token
             </Button>
           </div>
           {result && <ResultDisplay result={result} />}

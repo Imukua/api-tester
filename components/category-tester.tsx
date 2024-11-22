@@ -9,7 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus, AlertCircle } from "lucide-react";
 import { ResultDisplay } from "./result-display";
+
 interface Category {
   id: string;
   name: string;
@@ -19,8 +30,10 @@ interface Category {
 export default function CategoryTester() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState({ name: "", description: "" });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   //eslint-disable-next-line
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -45,6 +58,7 @@ export default function CategoryTester() {
   };
 
   const handleCreateCategory = async () => {
+    setError(null);
     const token = localStorage.getItem("accessToken");
     const response = await apiRequest(
       "/categories",
@@ -53,6 +67,7 @@ export default function CategoryTester() {
       token || undefined
     );
     setResult(response);
+
     if (response.success) {
       toast({
         title: "Category Created",
@@ -60,62 +75,90 @@ export default function CategoryTester() {
       });
       setNewCategory({ name: "", description: "" });
       fetchCategories();
+      setIsDialogOpen(false);
     } else {
-      toast({
-        title: "Failed to create category",
-        description: "An error occurred while creating the category.",
-        variant: "destructive",
-      });
+      const message = JSON.stringify(result, null, 2);
+      setError(message);
     }
   };
 
   return (
-    <div className="flex space-x-8">
-      <Card className="bg-white shadow-lg flex-grow">
-        <CardHeader className="bg-orange-100">
-          <CardTitle className="text-orange-800">Create Category</CardTitle>
-        </CardHeader>
-        <CardContent className="mt-4">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name" className="text-orange-800">
-                Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={newCategory.name}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="description" className="text-orange-800">
-                Description
-              </Label>
-              <Input
-                id="description"
-                name="description"
-                value={newCategory.description}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-orange-800">Categories</h2>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setError(null);
+              setNewCategory({ name: "", description: "" });
+            }
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <Plus className="w-4 h-4 mr-2" /> Add Category
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px] bg-orange-50 border-orange-200">
+            <DialogHeader>
+              <DialogTitle className="text-orange-800">
+                Add New Category
+              </DialogTitle>
+              <DialogDescription className="text-orange-700">
+                Create a new category for your products.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-orange-800">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={newCategory.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter category name"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-orange-800">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  name="description"
+                  value={newCategory.description}
+                  onChange={handleInputChange}
+                  placeholder="Enter category description"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
             </div>
             <Button
               onClick={handleCreateCategory}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="w-full bg-orange-500 hover:bg-orange-600"
             >
               Create Category
             </Button>
-            {result && <ResultDisplay result={result} />}
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="bg-white shadow-lg w-1/3 flex-grow">
+          </DialogContent>
+        </Dialog>
+      </div>
+      <Card className="bg-white shadow-lg">
         <CardHeader className="bg-orange-100">
           <CardTitle className="text-orange-800">Categories List</CardTitle>
         </CardHeader>
-        <CardContent className="mt-4">
+        <CardContent>
           <ScrollArea className="h-[400px] pr-4">
             {categories.length > 0 ? (
               <div className="space-y-4">
@@ -151,6 +194,7 @@ export default function CategoryTester() {
           </ScrollArea>
         </CardContent>
       </Card>
+      {result && <ResultDisplay result={result} />}
     </div>
   );
 }

@@ -7,31 +7,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Badge } from "./ui/badge";
-import { ScrollArea } from "./ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus, AlertCircle } from "lucide-react";
 import { ResultDisplay } from "./result-display";
 
 interface Shop {
   id: string;
-  desc: string;
-  street: string;
-  businessType: string;
-  buildingName: string;
-  shopNumber: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
   name: string;
-}
-
-interface NewShop {
   desc: string;
   street: string;
   businessType: string;
   buildingName: string;
   shopNumber: string;
   userId: string;
-  name?: string;
 }
 
 interface ShopTesterProps {
@@ -41,7 +39,8 @@ interface ShopTesterProps {
 
 export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
   const [shops, setShops] = useState<Shop[]>([]);
-  const [newShop, setNewShop] = useState<NewShop>({
+  const [newShop, setNewShop] = useState<Omit<Shop, "id">>({
+    name: "",
     desc: "",
     street: "",
     businessType: "",
@@ -49,8 +48,10 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
     shopNumber: "",
     userId: userId,
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   //eslint-disable-next-line
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchShops = useCallback(async () => {
     const response = await apiRequest("/shops", "GET", null, accessToken);
@@ -64,12 +65,11 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
       });
     }
   }, [accessToken]);
-
   useEffect(() => {
-    if (userId) {
+    if (userId && accessToken) {
       fetchShops();
     }
-  }, [userId, fetchShops]);
+  }, [userId, accessToken, fetchShops]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -77,6 +77,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
   };
 
   const handleCreateShop = async () => {
+    setError(null);
     const response = await apiRequest("/shops", "POST", newShop, accessToken);
     setResult(response);
     if (response.success) {
@@ -85,131 +86,159 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
         description: "The new shop has been successfully created.",
       });
       setNewShop({
+        name: "",
         desc: "",
         street: "",
         businessType: "",
         buildingName: "",
         shopNumber: "",
         userId: userId,
-        name: "",
       });
       fetchShops();
+      setIsDialogOpen(false);
     } else {
-      toast({
-        title: "Failed to create shop",
-        description: "An error occurred while creating the shop.",
-        variant: "destructive",
-      });
+      const message = JSON.stringify(response, null, 2);
+      setError(message);
     }
   };
 
   return (
-    <div className="flex space-x-8">
-      <Card className="bg-white shadow-lg flex-grow">
-        <CardHeader className="bg-orange-100">
-          <CardTitle className="text-orange-800">Create Shop</CardTitle>
-        </CardHeader>
-        <CardContent className="mt-4">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="userId" className="text-orange-800">
-                User ID
-              </Label>
-              <div
-                id="userId"
-                className="mt-1 p-2 w-full bg-gray-100 border border-orange-300 rounded-md text-gray-700"
-                aria-readonly="true"
-              >
-                {userId}
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-orange-800">Shops</h2>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setError(null);
+              setNewShop({
+                name: "",
+                desc: "",
+                street: "",
+                businessType: "",
+                buildingName: "",
+                shopNumber: "",
+                userId: userId,
+              });
+            }
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <Plus className="w-4 h-4 mr-2" /> Add Shop
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px] bg-orange-50 border-orange-200">
+            <DialogHeader>
+              <DialogTitle className="text-orange-800">
+                Add New Shop
+              </DialogTitle>
+              <DialogDescription className="text-orange-700">
+                Create a new shop for your business.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-orange-800">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={newShop.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter shop name"
+                  className="border-orange-300 focus:border-orange-500"
+                />
               </div>
-            </div>
-            <div>
-              <Label htmlFor="name" className="text-orange-800">
-                Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={newShop.name}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="desc" className="text-orange-800">
-                Description
-              </Label>
-              <Input
-                id="desc"
-                name="desc"
-                value={newShop.desc}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="street" className="text-orange-800">
-                Street
-              </Label>
-              <Input
-                id="street"
-                name="street"
-                value={newShop.street}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="businessType" className="text-orange-800">
-                Business Type
-              </Label>
-              <Input
-                id="businessType"
-                name="businessType"
-                value={newShop.businessType}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="buildingName" className="text-orange-800">
-                Building Name
-              </Label>
-              <Input
-                id="buildingName"
-                name="buildingName"
-                value={newShop.buildingName}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="shopNumber" className="text-orange-800">
-                Shop Number
-              </Label>
-              <Input
-                id="shopNumber"
-                name="shopNumber"
-                value={newShop.shopNumber}
-                onChange={handleInputChange}
-                className="border-orange-300 focus:border-orange-500"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="desc" className="text-orange-800">
+                  Description
+                </Label>
+                <Input
+                  id="desc"
+                  name="desc"
+                  value={newShop.desc}
+                  onChange={handleInputChange}
+                  placeholder="Enter shop description"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="street" className="text-orange-800">
+                  Street
+                </Label>
+                <Input
+                  id="street"
+                  name="street"
+                  value={newShop.street}
+                  onChange={handleInputChange}
+                  placeholder="Enter street name"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="businessType" className="text-orange-800">
+                  Business Type
+                </Label>
+                <Input
+                  id="businessType"
+                  name="businessType"
+                  value={newShop.businessType}
+                  onChange={handleInputChange}
+                  placeholder="Enter business type"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="buildingName" className="text-orange-800">
+                  Building Name
+                </Label>
+                <Input
+                  id="buildingName"
+                  name="buildingName"
+                  value={newShop.buildingName}
+                  onChange={handleInputChange}
+                  placeholder="Enter building name"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="shopNumber" className="text-orange-800">
+                  Shop Number
+                </Label>
+                <Input
+                  id="shopNumber"
+                  name="shopNumber"
+                  value={newShop.shopNumber}
+                  onChange={handleInputChange}
+                  placeholder="Enter shop number"
+                  className="border-orange-300 focus:border-orange-500"
+                />
+              </div>
             </div>
             <Button
               onClick={handleCreateShop}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="w-full bg-orange-500 hover:bg-orange-600"
             >
               Create Shop
             </Button>
-            {result && <ResultDisplay result={result} />}
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="bg-white shadow-lg w-1/3 flex-grow">
+          </DialogContent>
+        </Dialog>
+      </div>
+      <Card className="bg-white shadow-lg">
         <CardHeader className="bg-orange-100">
           <CardTitle className="text-orange-800">Shops List</CardTitle>
         </CardHeader>
-        <CardContent className="mt-4">
+        <CardContent>
           <ScrollArea className="h-[400px] pr-4">
             {shops.length > 0 ? (
               <div className="space-y-4">
@@ -224,6 +253,12 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
                           {shop.name}
                         </h3>
                         <p className="text-sm text-gray-600">{shop.desc}</p>
+                        <p className="text-sm text-gray-600">
+                          {shop.street}, {shop.buildingName}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Shop Number: {shop.shopNumber}
+                        </p>
                       </div>
                       <Badge
                         variant="outline"
@@ -231,12 +266,6 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
                       >
                         ID: {shop.id}
                       </Badge>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      <p>
-                        {shop.street}, {shop.buildingName}
-                      </p>
-                      <p>Shop Number: {shop.shopNumber}</p>
                     </div>
                   </Card>
                 ))}
@@ -247,6 +276,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
           </ScrollArea>
         </CardContent>
       </Card>
+      {result && <ResultDisplay result={result} />}
     </div>
   );
 }

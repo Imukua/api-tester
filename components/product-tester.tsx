@@ -18,8 +18,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Plus, AlertCircle } from "lucide-react";
+import { Plus, AlertCircle, ShoppingCart } from "lucide-react";
 import { ResultDisplay } from "./result-display";
+import { CartTester } from "./cart-tester";
+import Image from "next/image";
 
 interface Product {
   id: string;
@@ -61,6 +63,39 @@ export default function ProductTester() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const addToCart = async (productId: string) => {
+    const token = localStorage.getItem("accessToken");
+    const cartId = localStorage.getItem("cartId");
+    if (!token || !cartId) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to add items to your cart.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const response = await apiRequest(
+      `/cart/${cartId}`,
+      "POST",
+      { cartId, productId, quantity: 1 },
+      token
+    );
+    if (response.success) {
+      toast({
+        title: "Added to Cart",
+        description: "The product has been successfully added to the cart.",
+      });
+    } else {
+      console.log(response);
+      toast({
+        title: "Failed to add to Cart",
+        description: "An error occurred while adding the product to the cart.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchProducts = async () => {
     const response = await apiRequest("/products", "GET");
@@ -383,22 +418,31 @@ export default function ProductTester() {
                     className="p-4 hover:bg-orange-50 transition-colors"
                   >
                     <div className="flex flex-col sm:flex-row justify-between items-start">
-                      <div className="mb-2 sm:mb-0">
-                        <h3 className="font-semibold text-lg text-orange-800">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {product.description}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Brand: {product.brand}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Size: {product.size}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Colors: {product.colors.join(", ")}
-                        </p>
+                      <div className="mb-2 sm:mb-0 flex items-center gap-2">
+                        <Image
+                          src="https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
+                          alt={product.name}
+                          width={100}
+                          height={100}
+                          className="rounded-lg object-cover"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-lg text-orange-800">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {product.description}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Brand: {product.brand}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Size: {product.size}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Colors: {product.colors.join(", ")}
+                          </p>
+                        </div>
                       </div>
                       <div className="text-left sm:text-right">
                         <Badge
@@ -413,6 +457,13 @@ export default function ProductTester() {
                         <p className="text-xs text-gray-600">
                           Quantity: {product.quantity}
                         </p>
+                        <Button
+                          className="mt-2 bg-orange-500 hover:bg-orange-600"
+                          size="sm"
+                          onClick={() => addToCart(product.id)}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart
+                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -427,6 +478,7 @@ export default function ProductTester() {
         </CardContent>
       </Card>
       {result && <ResultDisplay result={result} />}
+      <CartTester />
     </div>
   );
 }

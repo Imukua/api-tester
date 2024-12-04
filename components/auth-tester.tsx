@@ -23,13 +23,15 @@ export default function AuthTester({
   const [password, setPassword] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
   const [userId, setUserId] = useState("");
+  const [otp, setOtp] = useState("");
   //eslint-disable-next-line
   const [result, setResult] = useState<any>(null);
+  const [isAthenticated, setIsAuthenticated] = useState(false);
 
-  const handleLogin = async () => {
-    const response = await apiRequest("/auth/login", "POST", {
+  const handleOtp = async () => {
+    const response = await apiRequest("/auth/verify-otp", "POST", {
       phone,
-      password,
+      otp,
     });
     setResult(response);
     if (response.success && response.data.tokens) {
@@ -39,6 +41,28 @@ export default function AuthTester({
       onAuthSuccess(response.data.user.id, response.data.tokens.accessToken);
       toast({
         title: "Login Successful",
+        description: "You have successfully logged in.",
+      });
+    } else {
+      toast({
+        title: "Invalid OTP",
+        description: "Please check your OTP and try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogin = async () => {
+    const response = await apiRequest("/auth/login", "POST", {
+      phone,
+      password,
+    });
+
+    setResult(response);
+    if (response.success) {
+      setIsAuthenticated(true);
+      toast({
+        title: "Login Successful, otp sent.",
         description: "You have successfully logged in.",
       });
     } else {
@@ -70,6 +94,8 @@ export default function AuthTester({
     setRefreshToken("");
     setPhone("");
     setPassword("");
+    setUserId("");
+    setOtp("");
     onLogout();
   };
 
@@ -125,12 +151,30 @@ export default function AuthTester({
               className="border-orange-300 focus:border-orange-500"
             />
           </div>
+          <div className={isAthenticated ? "" : "hidden"}>
+            <Label htmlFor="password" className="text-orange-800">
+              Otp
+            </Label>
+            <Input
+              id="otp"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="border-orange-300 focus:border-orange-500 "
+            />
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button
               onClick={handleLogin}
               className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
             >
               <LogIn className="w-4 h-4 mr-2" /> Login
+            </Button>
+            <Button
+              onClick={handleOtp}
+              disabled={!isAthenticated || !otp}
+              className="bg-orange-500 hover:bg-orange-600 flex-grow sm:flex-grow-0"
+            >
+              <LogIn className="w-4 h-4 mr-2" /> verify
             </Button>
             <Button
               onClick={handleLogout}

@@ -75,6 +75,8 @@ export function CartTester() {
     );
     setResult(response);
     if (response.success) {
+      const cartId = response.data.id
+      localstorage.setItem("cartId",cartId)
       setCart(response.data);
     } else {
       toast({

@@ -38,6 +38,9 @@ export default function AuthTester({
       setRefreshToken(response.data.tokens.refreshToken);
       setUserId(response.data.user.id);
       localStorage.setItem("accessToken", response.data.tokens.accessToken);
+      localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
+
+      
       onAuthSuccess(response.data.user.id, response.data.tokens.accessToken);
       toast({
         title: "Login Successful",

@@ -66,7 +66,7 @@ export default function ProductTester() {
 
   const addToCart = async (productId: string) => {
     const token = localStorage.getItem("accessToken");
-    const cartId ="fsbsfbjsfj"
+    const cartId =localStorage.getItem("cartId");
     if (!token || !cartId) {
       toast({
         title: "Authentication required",

@@ -37,7 +37,7 @@ export default function AuthTester({
     if (response.success && response.data.tokens) {
       setRefreshToken(response.data.tokens.refreshToken);
       setUserId(response.data.user.id);
-      localStorage.setItem("accessToken", response.data.tokens.accessToken);
+      localStorage.setItem("accessToken"), response.data.tokens.accessToken);
       localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
 
       

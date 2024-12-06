@@ -66,7 +66,7 @@ export default function ShopTester({ userId, accessToken }: ShopTesterProps) {
     }
   }, [accessToken]);
   useEffect(() => {
-    if (userId && accessToken) {
+    if (accessToken) {
       fetchShops();
     }
   }, [userId, accessToken, fetchShops]);
